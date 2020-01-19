@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage[margin=1in,vmargin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\pagestyle{fancy}
+\usepackage{url}
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
+\usepgfplotslibrary{polar}
+\usepgflibrary{shapes.geometric}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.5.1}
+\pgfmathdeclarefunction{gauss}{2}{%
+  \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
+}
+
+\pgfmathdeclarefunction{bivar}{4}{%
+  \pfgmathparse{1/(2*pi*#2*#4) * exp(-((x-#1)^2/#2^2 +
+    (y-#3)^2/#4^2))/2}%
+}
+\usetikzlibrary{shadows}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage[mode=buildnew]{standalone}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{float}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand*{\everymodeprime}{\ensuremath{\prime}}
+\graphicspath{{figs/}}
+
+
+\title{Label Smoothing Project}
+\author{}
+\date{\today}
+\begin{document}
+\maketitle
+
+\section{Label Smoothing is Expectation Maximimization}
+
+\section{Experiments}
+
+\subsection{MNIST}
+
+
+\end{document}
+
+
+

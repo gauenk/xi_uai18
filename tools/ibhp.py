@@ -19,6 +19,14 @@ eng_stopwords = set(stopwords.words('english'))
 class Kappa():
     """
     Abstraction of a 1 x K IBHP Matrix
+
+    -> Note K = maximum number of columns in the IB process
+    -> Note too K will grow as the number of samples grows
+
+    w: mixing weights for each \kappa_{i,k} [ K x L ]
+    c: indicator (0 or 1) for each observation [ i ] with size [ K_i ]
+       -> K_i is the maximum number of columns at the "i^th" observations
+    K: the number of columns for the "i^th" observations
     """
     betas = None
     taus = None
@@ -74,10 +82,14 @@ def sample_wv(c,w,v,K,Kplus,pi,M):
     return w,v
         
 def sample_text(D,v,kappa):
+    Ti = None
     try:
         text_probs = np.sum(v[kappa.inz(-1),:],axis=0)/float(kappa.nz(-1))
         Ti = npr.multinomial(D,text_probs)
     except:
+        print("ERROR")
+        print(kappa.c[-1])
+        print(kappa.K[-1])
         print(kappa.inz(-1))
         print(np.sum(v[kappa.inz(-1),:],axis=0))
         print(np.sum(v[kappa.inz(-1),:],axis=0)/float(kappa.nz(-1)))
@@ -95,9 +107,13 @@ def sample_c(kappa,tp,t_hist,lambda0):
                 raise ValueError("Can't have negative wait time!")
             lambda_ki = kappa(delta,i,k)
             lambdas[k] += lambda_ki / kappa.nz(i)
-    for k in range(K):
-        pk = lambdas[k] / ( lambda0/K + lambdas[k] )
-        cK[k] = npr.binomial(1,pk)
+
+    # TODO [hack!] we ensure we get at least _one_ latent term;
+    # we shouldn't need this since at least one table has been sampled.
+    while(np.sum(cK) == 0):
+        for k in range(K):
+            pk = lambdas[k] / ( lambda0/K + lambdas[k] )
+            cK[k] = npr.binomial(1,pk)
 
     # sample K+
     lambdaK = np.sum(lambdas)
@@ -119,7 +135,7 @@ def sample_time(kappa,t_hist,K):
     #     lambdak /= kappa.nz(k)
     #     lambdak_list[k] = lambdak
     rate = 2 # np.sum(lambdak_list)
-    time = PoissonProcess(rate,'c').sample_tau(1)[0]
+    time = PoissonProcess('c',rate).sample(1,sample_type='hold_time')[0]
     return time
 
 def ibhp_prior(N,M,pi,theta,alpha0):
@@ -152,7 +168,7 @@ def ibhp_prior(N,M,pi,theta,alpha0):
         w[i,:] = npr.dirichlet(pi.w0)
         v[i,:] = npr.dirichlet(pi.v0)
     kappa = Kappa(w,c)
-    time = PoissonProcess(lambda0,'c').sample_tau(1)[0]
+    time = PoissonProcess('c',lambda0).sample(1,sample_type='hold_time')[0]
     T = sample_text(M.D,v,kappa)
     append_sample(c,w,v,time,T)
 

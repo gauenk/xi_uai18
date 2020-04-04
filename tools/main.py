@@ -102,7 +102,7 @@ if __name__ == "__main__":
     Kappa.betas = betas
     Kappa.taus = taus
     c,w,v,t,T = ibhp_prior(N,M,pi,theta,alpha0)
-    view_ib(c,w,v,t,T)
+    # view_ib(c,w,v,t,T)
     
     print("Done sampling generative text. Let's see what we have.")
     print(t)
